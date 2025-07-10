@@ -1,0 +1,104 @@
+You will be provided with regulatory text from TRAFICOM in PDF format. Your task is to convert this text into SHACL constraints. For each text that you convert to SHACL, first write a comment above the SHACL shape indicating the section of the regulation it corresponds to.
+
+Here are two examples of how to convert the regulatory text into SHACL shapes:
+
+**Example 1:**
+
+**Regulatory Text:**
+
+3.2: The engine output shall not be less than that determined by the formula below and in no case less than 1,000 kW for ice class IA, IB, and IC, and no less than 2,800 kW for IA Super.
+
+**SHACL Shape:**
+
+```
+# section 3.2
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix sys: <http://example.com/system#> .
+@prefix ice: <http://example.com/iceregulations#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ssp: <http://example.com/ssp#> .
+
+# TRAFICOM Ice Class validation - Minimum Engine Power
+ice:MinimumEnginePowerShape a sh:NodeShape ;
+sh:targetClass ssp:System ; # Target all ship systems
+sh:message "Ship does not meet TRAFICOM minimum engine power requirements." ;
+sh:sparql [
+sh:message "Engine power ({actualPower} kW) is below the required minimum ({minPower} kW) for ice class {iceClass}." ;
+sh:select """
+PREFIX math: <http://www.w3.org/2005/xpath-functions/math>
+PREFIX sys: <http://example.com/system#>
+SELECT $this ?actualPower ?minPower ?iceClass
+WHERE {
+# Get ship properties
+$this sys:enginePower ?actualPower ;
+sys:iceClass ?iceClass ;
+sys:iceResistance ?R_CH ;
+sys:propellerDiameter ?D_p ;
+sys:propellerCount ?propCount ;
+sys:propellerType ?propType .
+# Determine K_e based on propeller count and type
+BIND(
+IF(?propCount = 1 && ?propType = "CP", 2.03,
+IF(?propCount = 2 && ?propType = "CP", 1.44,
+IF(?propCount = 3 && ?propType = "CP", 1.18,
+IF(?propCount = 1 && ?propType = "FP", 2.26,
+IF(?propCount = 2 && ?propType = "FP", 1.60,
+IF(?propCount = 3 && ?propType = "FP", 1.31, 0))))))
+AS ?K_e)
+# Calculate minimum required power
+BIND((?R_CH / 1000) AS ?R_CH_scaled)
+BIND((?R_CH_scaled ** 1.5) AS ?resistance_term)
+BIND((?K_e * ?resistance_term / ?D_p) AS ?calculated_min)
+# Apply the absolute minimum based on ice class
+BIND(
+IF(?iceClass = "IA Super", 2800,
+IF(?iceClass = "IA" || ?iceClass = "IB" || ?iceClass = "IC", 1000, 0))
+AS ?absolute_min)
+# Use the greater of the calculated value and the absolute minimum
+BIND(IF(?calculated_min > ?absolute_min, ?calculated_min, ?absolute_min) AS ?minPower)
+# Only select ships that don't meet the requirement
+FILTER(?actualPower < ?minPower)
+}
+""" ;
+] .
+```
+
+**Example 2:**
+
+**Regulatory Text:**
+
+6.5.1 Design loads on propeller blades Fb is the maximum force experienced during the lifetime of a ship that bends a propeller blade backwards when the propeller mills an ice block while rotating ahead. Ff is the maximum force experienced during the lifetime of a ship that bends a propeller blade forwards when the pro peller mills an ice block while rotating ahead. Fb and Ff originate from different propeller/ice in teraction phenomena and do not occur simultaneously. Hence, they are to be applied to one blade separately.
+
+**SHACL Shape:**
+
+```
+# section 6.5.1
+ice:PropellerBladeForceShape a sh:NodeShape ;
+sh:targetNode ssp:MainPropeller ;
+sh:message "Propeller force requirements not properly defined." ;
+sh:sparql [
+sh:message "Propeller must have defined maximum forward and backward blade forces for ice milling simulation." ;
+sh:select """
+PREFIX ssp: <https://w3id.org/mtl-requirements/ssp#> 
+PREFIX ssn: <http://www.w3.org/ns/ssn/>
+SELECT $this
+WHERE {
+# Either missing backward force
+{
+FILTER NOT EXISTS { 
+ssp:BackwardShipForce ssn:isPropertyOf $this .
+}
+}
+UNION
+# Or missing forward force
+{
+FILTER NOT EXISTS { 
+ssp:ForwardShipForce ssn:isPropertyOf $this .
+}
+}
+}
+"""
+] .
+```
+
+
