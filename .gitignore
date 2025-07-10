@@ -1,5 +1,5 @@
-.env
-.env 
+Pipeline/.env
+Pipeline/.env 
 __pycache__/ 
 *.pyc 
 .vscode/ 
