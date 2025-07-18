@@ -36,7 +36,7 @@ def main():
         return
 
     # Step 5: Load the few-shot examples from the external file
-    few_shot_examples = load_text_file(FEW_SHOT_EXAMPLES_PATH)
+    few_shot_examples = load_text_file(few_shot.txt)
     if not few_shot_examples:
         return # Stop if the examples file couldn't be loaded
 

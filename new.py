@@ -14,7 +14,7 @@ HEADERS = {"app_id": APP_ID, "app_key": APP_KEY}
 
 # Submit PDF
 options = {"conversion_formats": {"md": True}}
-with open("TRAFICOM.pdf","rb") as f:
+with open("test_image.pdf","rb") as f:
     resp = requests.post(BASE_URL, headers=HEADERS,
                          data={"options_json": json.dumps(options)},
                          files={"file": f})
@@ -39,8 +39,8 @@ while True:
     time.sleep(2)
 
 
-#print("Saved Markdown to",out )
-FORMATT=".lines.json"
+
+FORMATT=".md.zip"
 url = "https://api.mathpix.com/v3/pdf/" + pdf_id+ FORMATT
 response = requests.get(url, headers=HEADERS)
 with open(pdf_id + FORMATT, "w") as f:

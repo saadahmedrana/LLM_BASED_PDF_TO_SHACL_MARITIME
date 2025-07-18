@@ -27,8 +27,8 @@ options = {"conversion_formats": {"md": True}}
 #print("Saved Markdown to",out )
 
 
-FORMATT=".lines.json"
+FORMATT=".md.zip"
 url = "https://api.mathpix.com/v3/pdf/" + pdf_id+ FORMATT
 response = requests.get(url, headers=HEADERS)
-with open(pdf_id + FORMATT, "w", encoding="utf-8") as f:
-    f.write(response.text)
+with open(pdf_id + FORMATT, "wb") as f:
+    f.write(response.content)
