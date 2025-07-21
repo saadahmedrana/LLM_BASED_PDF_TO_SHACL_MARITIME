@@ -67,7 +67,7 @@ Your task is to analyze the provided PDF file and follow the user's instruction 
 
     # Step 8: Ask the Gemini model to generate the code
     print("\n Asking Gemini to generate the SHACL code...")
-    model = genai.GenerativeModel(model_name='models/gemini-1.5-pro-latest')
+    model = genai.GenerativeModel(model_name='models/gemini-2.5-pro-latest')
     response = model.generate_content([final_prompt, uploaded_file])
 
     # Step 9: Print the final result!

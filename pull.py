@@ -13,7 +13,7 @@ params = {
     "page":2,
     "per_page": 100,
 }
-pdf_id = "2025_07_16_9a385908f6e70ba0f1fdg"
+pdf_id = "2025_07_16_62c6642fbf149257b099g"
 
 
 resp = requests.get(QUERY_URL, headers=HEADERS, params=params)
@@ -22,12 +22,12 @@ resp.raise_for_status()
 data = resp.json()
 for pdf in data.get("pdfs", []):
     print(pdf["id"])
-options = {"conversion_formats": {"md": True}}
+options = {"conversion_formats": {"lines.json": True}}
 
 #print("Saved Markdown to",out )
 
 
-FORMATT=".md.zip"
+FORMATT=".lines.json"
 url = "https://api.mathpix.com/v3/pdf/" + pdf_id+ FORMATT
 response = requests.get(url, headers=HEADERS)
 with open(pdf_id + FORMATT, "wb") as f:
