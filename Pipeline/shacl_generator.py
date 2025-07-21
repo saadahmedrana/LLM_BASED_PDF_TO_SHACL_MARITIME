@@ -36,7 +36,7 @@ def main():
         return
 
     # Step 5: Load the few-shot examples from the external file
-    few_shot_examples = load_text_file(few_shot.txt)
+    few_shot_examples = load_text_file(FEW_SHOT_EXAMPLES_PATH)
     if not few_shot_examples:
         return # Stop if the examples file couldn't be loaded
 
@@ -66,7 +66,7 @@ Your task is to analyze the provided PDF file and follow the user's instruction 
     print(f"File uploaded successfully: {uploaded_file.name}")
 
     # Step 8: Ask the Gemini model to generate the code
-    print("\n🤖 Asking Gemini to generate the SHACL code...")
+    print("\n Asking Gemini to generate the SHACL code...")
     model = genai.GenerativeModel(model_name='models/gemini-1.5-pro-latest')
     response = model.generate_content([final_prompt, uploaded_file])
 
