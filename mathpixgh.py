@@ -49,8 +49,8 @@ class Pdf:
             convert_to_tex_zip: Optional[bool] = False,
             convert_to_html: Optional[bool] = False,
             convert_to_pdf: Optional[bool] = False,
-            convert_to_md_zip: Optional[bool] = False,
-            convert_to_mmd_zip: Optional[bool] = False,
+            convert_to_md_zip: Optional[bool] = True,
+            convert_to_mmd_zip: Optional[bool] = True,
             convert_to_pptx: Optional[bool] = False,
             convert_to_html_zip: Optional[bool] = False,
             improve_mathpix: Optional[bool] = False,
@@ -593,3 +593,9 @@ class Pdf:
             ConversionIncompleteError: If the conversion is not complete
         """
         return self.bytes_result(conversion_format='html.zip')
+    
+    
+APP_ID = os.getenv("MATHPIX_APP_ID")
+APP_KEY = os.getenv("MATHPIX_APP_KEY")
+if not APP_ID or not APP_KEY:
+    raise RuntimeError("Set MATHPIX_APP_ID and MATHPIX_APP_KEY")
